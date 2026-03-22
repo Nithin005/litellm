@@ -99,8 +99,15 @@ class GithubCopilotAnthropicConfig(_get_anthropic_config_base()):
             ),
         )
 
-        # Copilot-specific headers (Authorization: Bearer, editor-version, etc.)
-        # Merged last so they take precedence over any overlapping Anthropic headers.
+        # Copilot-specific headers provide defaults (Authorization, editor-version, etc.)
         copilot_headers = get_copilot_default_headers(copilot_api_key)
 
-        return {**headers, **anthropic_headers, **copilot_headers}
+        # Merge order:
+        #   1. anthropic_headers  — baseline (anthropic-version, beta flags)
+        #   2. copilot_headers    — adds Authorization + Copilot defaults
+        #   3. headers            — extra_headers from litellm config override defaults
+        # Then re-apply Authorization from copilot_headers so a user-supplied
+        # Authorization in extra_headers can never replace the fresh Copilot token.
+        merged = {**anthropic_headers, **copilot_headers, **headers}
+        merged["Authorization"] = copilot_headers["Authorization"]
+        return merged

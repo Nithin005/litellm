@@ -201,6 +201,7 @@ class AnthropicConfig(AnthropicModelInfo, BaseConfig):
             "speed",
             "context_management",
             "cache_control",
+            "output_config",
         ]
 
         if (
@@ -1075,6 +1076,9 @@ class AnthropicConfig(AnthropicModelInfo, BaseConfig):
             elif param == "cache_control" and isinstance(value, dict):
                 # Pass through top-level cache_control for automatic prompt caching
                 optional_params["cache_control"] = value
+            elif param == "output_config" and isinstance(value, dict):
+                # Pass through output_config directly (e.g. {"effort": "high"} for Claude 4.6)
+                optional_params["output_config"] = value
 
         ## handle thinking tokens
         self.update_optional_params_with_thinking_tokens(
@@ -1430,9 +1434,14 @@ class AnthropicConfig(AnthropicModelInfo, BaseConfig):
             **optional_params,
         }
 
+        _extra_body = data.get("extra_body", None)
+        if _extra_body and isinstance(_extra_body, dict) and len(_extra_body) == 1 and "output_config" in _extra_body:
+            data.update(_extra_body)
+            data.pop("extra_body", None)
+
         ## Handle output_config (Anthropic-specific parameter)
-        if "output_config" in optional_params:
-            output_config = optional_params.get("output_config")
+        if "output_config" in data or "output_config" in optional_params:
+            output_config = data.get("output_config") or optional_params.get("output_config")
             if output_config and isinstance(output_config, dict):
                 effort = output_config.get("effort")
                 if effort and effort not in ["high", "medium", "low", "max"]:
