@@ -8024,7 +8024,14 @@ class ProviderConfigManager:
             LlmProviders.MINIMAX: (lambda: litellm.MinimaxChatConfig(), False),
             LlmProviders.GITHUB: (lambda: litellm.GithubChatConfig(), False),
             LlmProviders.COMPACTIFAI: (lambda: litellm.CompactifAIChatConfig(), False),
-            LlmProviders.GITHUB_COPILOT: (lambda: litellm.GithubCopilotConfig(), False),
+            LlmProviders.GITHUB_COPILOT: (
+                lambda model: (
+                    litellm.GithubCopilotAnthropicConfig()
+                    if "claude" in model.lower()
+                    else litellm.GithubCopilotConfig()
+                ),
+                True,
+            ),
             LlmProviders.CHATGPT: (lambda: litellm.ChatGPTConfig(), False),
             LlmProviders.GIGACHAT: (lambda: litellm.GigaChatConfig(), False),
             LlmProviders.RAGFLOW: (lambda: litellm.RAGFlowConfig(), False),

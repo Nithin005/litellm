@@ -2560,6 +2560,42 @@ def completion(  # type: ignore # noqa: PLR0915
             logging.post_call(
                 input=messages, api_key=api_key, original_response=response
             )
+        elif custom_llm_provider == "github_copilot" and "claude" in model.lower():
+            # Claude models on GitHub Copilot use the Anthropic messages API format.
+            # GithubCopilotAnthropicConfig.validate_environment (selected via
+            # ProviderConfigManager) handles Copilot bearer auth + Anthropic beta headers.
+            from litellm.llms.github_copilot.authenticator import Authenticator
+            from litellm.llms.github_copilot.common_utils import GITHUB_COPILOT_API_BASE
+
+            _copilot_auth = Authenticator()
+            _copilot_api_base = _copilot_auth.get_api_base() or GITHUB_COPILOT_API_BASE
+            api_base = _copilot_api_base.rstrip("/") + "/v1/messages"
+
+            response = anthropic_chat_completions.completion(
+                model=model,
+                messages=messages,
+                api_base=api_base,
+                acompletion=acompletion,
+                custom_prompt_dict=litellm.custom_prompt_dict,
+                model_response=model_response,
+                print_verbose=print_verbose,
+                optional_params=optional_params,
+                litellm_params=litellm_params,
+                logger_fn=logger_fn,
+                encoding=_get_encoding(),
+                api_key=None,  # auth is handled by GithubCopilotAnthropicConfig.validate_environment
+                logging_obj=logging,
+                headers=headers or {},
+                timeout=timeout,
+                client=client,
+                custom_llm_provider=custom_llm_provider,
+            )
+            if optional_params.get("stream", False) or acompletion is True:
+                logging.post_call(
+                    input=messages,
+                    api_key=None,
+                    original_response=response,
+                )
         elif (
             model in litellm.open_ai_chat_completion_models
             or custom_llm_provider == "custom_openai"

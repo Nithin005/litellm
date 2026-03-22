@@ -1811,6 +1811,9 @@ if TYPE_CHECKING:
     from .llms.github_copilot.chat.transformation import (
         GithubCopilotConfig as GithubCopilotConfig,
     )
+    from .llms.github_copilot.chat.anthropic_transformation import (
+        GithubCopilotAnthropicConfig as GithubCopilotAnthropicConfig,
+    )
     from .llms.github_copilot.responses.transformation import (
         GithubCopilotResponsesAPIConfig as GithubCopilotResponsesAPIConfig,
     )

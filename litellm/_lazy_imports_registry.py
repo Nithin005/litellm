@@ -288,8 +288,9 @@ LLM_CONFIG_NAMES = (
     "IBMWatsonXEmbeddingConfig",
     "GenAIHubEmbeddingConfig",
     "IBMWatsonXAudioTranscriptionConfig",
-    "GithubCopilotConfig",
-    "GithubCopilotResponsesAPIConfig",
+     "GithubCopilotConfig",
+     "GithubCopilotAnthropicConfig",
+     "GithubCopilotResponsesAPIConfig",
     "ChatGPTConfig",
     "ChatGPTResponsesAPIConfig",
     "ManusResponsesAPIConfig",
@@ -1100,6 +1101,10 @@ _LLM_CONFIGS_IMPORT_MAP = {
     "GithubCopilotConfig": (
         ".llms.github_copilot.chat.transformation",
         "GithubCopilotConfig",
+    ),
+    "GithubCopilotAnthropicConfig": (
+        ".llms.github_copilot.chat.anthropic_transformation",
+        "GithubCopilotAnthropicConfig",
     ),
     "GithubCopilotResponsesAPIConfig": (
         ".llms.github_copilot.responses.transformation",
