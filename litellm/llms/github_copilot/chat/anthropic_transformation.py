@@ -66,9 +66,14 @@ class GithubCopilotAnthropicConfig(_get_anthropic_config_base()):
         tools = optional_params.get("tools")
 
         # Determine which Anthropic beta headers are needed for this request.
+        # Pass neither api_key nor auth_token — auth is handled entirely by the
+        # Copilot headers below.  Passing auth_token here would produce a lowercase
+        # "authorization" key that duplicates the "Authorization" from Copilot headers;
+        # httpx normalises both to the same name and the server rejects the
+        # concatenated value as "invalid whitespace".
         anthropic_headers = self.get_anthropic_headers(
-            api_key=None,           # Do NOT set x-api-key
-            auth_token=copilot_api_key,  # Sets authorization: Bearer <token>
+            api_key=None,
+            auth_token=None,
             computer_tool_used=self.is_computer_tool_used(tools=tools),
             prompt_caching_set=self.is_cache_control_set(messages=messages),
             pdf_used=self.is_pdf_used(messages=messages),
